@@ -17,7 +17,8 @@ in
     services.xserver.windowManager.session = [{
       name = "placidusax";
       start = ''
-        ${cfg.package}/bin/qtile start &
+        nitrogen --restore &
+        ${cfg.package}/bin/qtile start -c /etc/nixos/qtile/config.py &
         waitPID=$!
       '';
     }];
