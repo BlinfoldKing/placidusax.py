@@ -1,0 +1,311 @@
+(defvar eww "eww -c /etc/nixos/qtile/eww")
+(defvar wifi_rev "false")
+(defpoll wifi_conn :interval "1s" "nmcli c | grep 'wlp5s0\\|wlp2s0' | awk '{print ($1);exit}'")
+(defpoll notif_waiting :interval "1s" "dunstctl count waiting")
+(defpoll notif_displayed :interval "1s" "dunstctl count displayed")
+(defpoll notif_pause :interval "1s" "dunstctl is-paused")
+(defpoll memory_use :interval "1s" "printf '%.0f\\n' $(free -m | grep Mem | awk '{print ($3/$2)*100}')")
+(defpoll username :interval "10h" "whoami")
+(defpoll hostname :interval "10h" "hostnamectl | grep 'hostname' | awk '{print $3}'")
+
+(defwindow bar
+    :monitor 0
+    :class "hello"
+    :geometry (geometry 
+            :y "-10px" 
+            :width "90%"
+            :anchor "bottom center"
+        )
+    :stacking "fg"
+    :windowtype "dock"
+    :wm-ignore false
+    (bar)
+)
+
+(defvar wp_val 0)
+
+(defwidget bar []
+    (box :space-evenly "false"
+        :vexpand "false"
+        :class "bar"
+        (left)
+        (sep)
+        (window)
+        (sep)
+        (right)
+        ))
+
+(defwidget left []
+    (box :class "left" :halign "start" :hexpand "false" :space-evenly "false"
+        (launcher)
+        (layout)
+        (slant_right_1)
+        (current_wp)
+        (slant_right_2)
+        (session)
+        (slant_right_3)
+))
+
+(defvar layout_val "MONADTALL")
+(defwidget layout []
+    (box
+        :class "layout" :halign "start" :hexpand "false"
+        "  ${layout_val}"
+    ))
+
+(defvar window_val "")
+(defwidget window []
+    (box
+        :space-evenly "false"
+        :class "window" :halign "start" :hexpand "false"
+        "ﬓ ${window_val == "" ? "placidusax" : window_val}"
+    ))
+
+(defvar show_wp "false")
+(defwidget current_wp []
+    (eventbox
+              :onhover "${eww} update show_wp=true"
+              :onhoverlost "${eww} update show_wp=false"
+              (box
+                 :class "curr_wp debug"
+                 :hexpand "false"
+                 :vexpand "false"
+                 :space-evenly "false"
+                  (label :class "wp-value" :text "  ${wp_val}")
+                  (revealer
+                    :transition "slideright"
+                    :reveal show_wp
+                    :duration "350ms"
+                    (wp))
+              )
+       ))
+
+
+
+
+(defwidget sep []
+ (box :class "sep" :hexpand "true"
+      :space-evenly "true"
+    ""
+))
+
+(defwidget session []
+ (box :class "session" :hexpand "false"
+      :space-evenly "false"
+      (label :class "icon" :text "")
+      "${username}@${hostname}"
+))
+
+(defwidget right []
+    (box :class "right"  :halign "end"
+        :space-evenly "false"
+        (slant_left_4)
+        (memory)
+        (notification)
+        (literal :content "${wifi_conn == "" ? "(slant_left_3_alt)" : "(slant_left_3)"}")
+        (wifi)
+        (literal :content "${wifi_conn == "" ? "(slant_left_2_alt)" : "(slant_left_2)"}")
+        (volume_widget)
+        (slant_left_1)
+        (clock)
+        (power)
+))
+
+(defwidget launcher []
+  (box
+    (button
+      :class "launcher"
+      :onclick "echo 'rofi -modi drun -show drun' | bash"
+      ""
+    )
+  )
+)
+
+(defvar power_rev "false")
+(defwidget power []
+  (eventbox
+    :onhover "${eww} update power_rev=true"
+    :onhoverlost "${eww} update power_rev=false"
+    (box
+      :class "power"
+      :space-evenly "false"
+      (revealer
+           :transition "slideleft"
+            :reveal power_rev
+            :duration "350ms"
+            :space-evenly "false"
+            (box
+              (button
+                :class "logout"
+                :onclick "pkill -KILL -u ${username}"
+                ""
+              )
+              (button
+                :class "restart"
+                :onclick "reboot"
+                "ﰇ"
+              )
+            )
+      )         
+      (button
+        :class "poweroff"
+        :onclick "poweroff"
+        "⏻"
+      )
+
+    )
+  )
+)
+
+(defwidget memory []
+  (box
+      :class "memory"
+      :space-evenly "false"
+      :tooltip "memory usage"
+      " ${memory_use}%"
+  )
+)
+
+(defwidget notification []
+    (eventbox
+        :tooltip "toogle popup notification"
+        :class "notification ${notif_displayed + notif_waiting > 0 ? "active" : ""}" 
+        (button :onclick "dunstctl set-paused toggle"
+                "${notif_pause == "false" ? "" : ""} ${notif_displayed + notif_waiting}")
+    )
+)
+
+(defpoll hour	:interval "1s"	"date '+%H'")
+(defpoll min	:interval "1s"	"date '+%M'")
+
+(defwidget clock []
+    (box :class  "clock"
+        "${hour}:${min} "))
+
+
+(defvar vol_rev false)
+(defpoll current-volume :interval "1s" "pactl -- get-sink-volume @DEFAULT_SINK@ | awk '$1==\"Volume:\" {print $5; exit};' | sed 's/%//'")
+
+(defwidget volume_widget []
+    (eventbox
+             :class "volume"
+             :onhover "${eww} update vol_rev=true"
+             :onhoverlost "${eww} update vol_rev=false"
+             (box
+                :hexpand "false"
+                :space-evenly "false"
+                " "
+                (revealer
+                    :transition "slideright"
+                    :reveal vol_rev
+                    :duration "350ms"
+                    (box :space-evenly "false"
+                        (scale 
+                            :class "volbar"
+                            :min 0
+                            :max 101
+                            :draw_value "true"
+                            :value current-volume
+                            :onchange "pactl -- set-sink-volume @DEFAULT_SINK@ {}%"
+                            :orientation "h")
+                    )
+                ) 
+                "${current-volume}%"
+            )
+    ))
+
+(defwidget wifi []
+    (eventbox
+        :onhover "${eww} update wifi_rev=true"
+        :onhoverlost "${eww} update wifi_rev=false"
+        :cursor "pointer"
+        (button
+            :onclick "../rofi-wifi-menu.sh | bash"
+            (box
+                :class "wifi ${wifi_conn == "" ? "disconnected" : ""}"
+                :hexpand "false"
+                :space-evenly "false"
+                "${wifi_conn == "" ? "睊" : "直"}"
+                (revealer
+                        :transition "slideright"
+                        :reveal wifi_rev
+                        :duration "350ms"
+                        (box " ${wifi_conn == "" ? "Disconnected" : wifi_conn }") 
+                )
+            )
+        )
+        
+    )
+)
+
+(defwidget wp []
+    (box :class "wp-box" :vexpand "false" :hexpand "false"
+        :halign "center"
+        :space-evenly "false"
+        (button
+            :class "wp-items ignore"
+            :onclick "qtile cmd-obj -o group 0 -f toscreen"
+            "|"
+        )
+        (button
+            :class "wp-items ${wp_val == 0 ? "active" : ""}"
+            :onclick "qtile cmd-obj -o group 0 -f toscreen & ${eww} update wp_val=0"
+            "0"
+        )
+        (button
+            :class "wp-items ${wp_val == 1 ? "active" : ""}"
+            :onclick "qtile cmd-obj -o group 1 -f toscreen & ${eww} update wp_val=1"
+            "1"
+        )
+        (button
+            :class "wp-items ${wp_val == 2 ? "active" : ""}"
+            :onclick "qtile cmd-obj -o group 2 -f toscreen & ${eww} update wp_val=2"
+            "2"
+        )
+        (button
+            :class "wp-items ${wp_val == 3 ? "active" : ""}"
+            :onclick "qtile cmd-obj -o group 3 -f toscreen & ${eww} update wp_val=3"
+            "3"
+        )
+        (button
+            :class "wp-items ${wp_val == 4 ? "active" : ""}"
+            :onclick "qtile cmd-obj -o group 4 -f toscreen & ${eww} update wp_val=4"
+            "4"
+        )
+        (button
+            :class "wp-items ${wp_val == 5 ? "active" : ""}"
+            :onclick "qtile cmd-obj -o group 5 -f toscreen & ${eww} update wp_val=5"
+            "5"
+        )
+        (button
+            :class "wp-items ${wp_val == 6 ? "active" : ""}"
+            :onclick "qtile cmd-obj -o group 6 -f toscreen & ${eww} update wp_val=6"
+            "6"
+        )
+        (button
+            :class "wp-items ${wp_val == 7 ? "active" : ""}"
+            :onclick "qtile cmd-obj -o group 7 -f toscreen & ${eww} update wp_val=7"
+            "7"
+        )
+        (button
+            :class "wp-items ${wp_val == 8 ? "active" : ""}"
+            :onclick "qtile cmd-obj -o group 8 -f toscreen & ${eww} update wp_val=8"
+            "8"
+        )
+        (button
+            :class "wp-items ${wp_val == 9 ? "active" : ""}"
+            :onclick "qtile cmd-obj -o group 9 -f toscreen & ${eww} update wp_val=9"
+            "9"
+        )
+))
+
+(defwidget slant_right_1 [] (box :class "slant_right_1"))
+(defwidget slant_right_2 [] (box :class "slant_right_2"))
+(defwidget slant_right_3 [] (box :class "slant_right_3"))
+
+(defwidget slant_left_1 [] (box :class "slant_left_1"))
+(defwidget slant_left_2 [] (box :class "slant_left_2"))
+(defwidget slant_left_2_alt [] (box :class "slant_left_2_alt"))
+(defwidget slant_left_3 [] (box :class "slant_left_3"))
+(defwidget slant_left_3_alt [] (box :class "slant_left_3_alt"))
+(defwidget slant_left_4 [] (box :class "slant_left_4"))

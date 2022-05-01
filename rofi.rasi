@@ -1,0 +1,15 @@
+* {
+    font: "Caskaydia Cove Nerd Font 13";
+    background-color: #00000000;
+    text-color: #a9b1d6;
+}
+
+window {
+    padding: 10;
+    background-color: #1a1b2699;
+    border: 10;
+}
+
+element.selected {
+    background-color: #1a1b26;
+}

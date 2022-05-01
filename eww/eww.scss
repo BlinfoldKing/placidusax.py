@@ -1,0 +1,234 @@
+$color0: #24283b;
+$color1: #414868;
+$color2: #f7768e;
+$color3: #73daca;
+$color4: #e0af68;
+$color5: #7aa2f7;
+$color6: #bb9af7;
+$color6: #7dcfff;
+$color6: #c0caf5;
+$color7: #9ece6a;
+
+$background: #1a1b26;
+$foreground: #a9b1d6;
+
+* {
+    all: unset;
+    font-family: "Caskaydia Cove Nerd Font";
+    margin: 0;
+    padding: 0;
+    font-size: 14px;
+}
+
+tooltip {
+    background: none;
+}
+
+.left, .right {
+    color: $color0;
+    margin: 0;
+}
+
+.slant_left_1 {
+    border-top: 30 solid $color1;
+    border-right: 20 solid $color5;
+}
+
+.slant_left_2 {
+    border-top: 30 solid $color7;
+    border-right: 20 solid $color1;
+}
+
+.slant_left_2_alt {
+    border-top: 30 solid $color2;
+    border-right: 20 solid $color1;
+}
+
+.slant_left_3 {
+    border-top: 30 solid $color0;
+    border-right: 20 solid $color7;
+}
+
+.slant_left_3_alt {
+    border-top: 30 solid $color0;
+    border-right: 20 solid $color2;
+}
+
+.slant_left_4 {
+    border-top: 30 solid $background;
+    border-right: 20 solid $color0;
+}
+
+.slant_right_1 {
+    border-top: 30 solid $color1;
+    border-left: 20 solid $color5;
+}
+
+.slant_right_2 {
+    border-top: 30 solid $color0;
+    border-left: 20 solid $color1;
+}
+
+.slant_right_3 {
+    border-top: 30 solid $background;
+    border-left: 20 solid $color0;
+}
+
+.layout {
+    background: $color5;
+    padding: 0 10px;
+}
+
+.session {
+    background: $color0;
+    padding-right: 20px;
+    color: $foreground;
+}
+
+.notification {
+    background: $color0;
+    color: $foreground;
+    &.active {
+        color: $color2;
+    }
+    margin: 0 30px;
+    font-weight: bold;
+    button {
+        padding: 0 10px;
+    }
+}
+
+.memory {
+    background: $color0;
+    color: $foreground;
+    font-weight: bold;
+    padding: 0 10px;
+}
+
+.sep {
+    background: $background;
+    margin: 0;
+    opacity: 1;
+}
+
+.window {
+    background: $background;
+    color: $foreground;
+    margin: 0;
+    opacity: 1;
+}
+
+.wp-box {
+    .wp-items {
+        border: none;
+        margin: 0;
+        padding: 5px 10px;
+        font-weight: bold;
+        border-bottom: 2px solid transparent;
+        &.active {
+            &:not(.ignore) {
+                border-bottom: 2px solid $color5;
+            }
+       }
+
+       &:hover {
+           &:not(.ignore) {
+               color: $color1;
+               background: $color5;
+           }
+       }
+    }
+}
+
+.curr_wp {
+    background: $color1;
+    color: $color5;
+    border: none;
+    font-weight: bold;
+    
+    .wp-value {
+        padding: 0 10px;
+    }
+}
+
+.volbar trough highlight {
+  background-image: linear-gradient(to right, $color2, $color3);
+  border-radius: 10px;
+}
+
+scale trough {
+  all: unset;
+  background-color: #22242b;
+  border-radius: 16px;
+  min-height: 10px;
+  min-width: 70px;
+  margin: 0px 20px 0px 20px;
+}
+
+.clock {
+    padding: 0 20px;
+    font-weight: bold;
+    background-color: $color5;
+}
+
+.volume {
+    background-color: $color1;
+    color: $color5;
+}
+
+.wifi {
+    background-color: $color7;
+    &.disconnected {
+        background-color: $color2;
+    }
+    color: $background;
+    padding: 0 10px;
+}
+
+.power {
+    background: $color0;
+    button {
+        padding: 0 15px;
+    }
+}
+
+.hidden-power {
+    button {
+        border: solid 1px red;
+        padding: 0 10px;
+    }
+}
+
+.poweroff {
+    color: $color2;
+}
+
+.logout {
+    label {
+        font-size: 16px;
+    }
+    font-weight: bold;
+    color: $color5;
+}
+
+.restart {
+    label {
+        font-size: 16px;
+    }
+    font-weight: bold;
+    color: $color4;
+}
+
+.launcher {
+    padding: 0 10px;
+    padding-right: 20px;
+    background: $color0;
+    label {
+       color: $color5; 
+    }
+}
+
+.icon {
+    font-size: 18px;
+    padding: 0 15px;
+}

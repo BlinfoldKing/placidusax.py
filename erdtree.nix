@@ -1,33 +1,36 @@
-{ config, lib, pkgs, ... }:
-
-with lib;
-
-let
-  cfg = config.services.xserver.windowManager.placidusax;
-in
-
+{ username, config, lib, pkgs, ... }:
 {
-  options.services.xserver.windowManager.placidusax = {
-    enable = mkEnableOption "placidusax";
-
-    package = mkPackageOption pkgs "qtile" { };
-  };
-
-  config = mkIf cfg.enable {
-    services.xserver.windowManager.session = [{
-      name = "placidusax";
-      start = ''
-        nitrogen --restore &
-        ${cfg.package}/bin/qtile start -c /etc/nixos/qtile/config.py &
-        waitPID=$!
-      '';
-    }];
-
-    environment.systemPackages = [
-      # pkgs.qtile is currently a buildenv of qtile and its dependencies.
-      # For userland commands, we want the underlying package so that
-      # packages such as python don't bleed into userland and overwrite intended behavior.
-      (cfg.package.unwrapped or cfg.package)
+    imports = [
+        ./placidusax.nix
     ];
+
+    services.xserver.displayManager.defaultSession = "none+placidusax";
+    services.xserver.windowManager = {
+       placidusax.enable = true;
+    };
+
+    services.picom.enable = true;
+    services.picom.activeOpacity = 1.0;
+    services.picom.inactiveOpacity = 1.0;
+    services.picom.backend = "glx";
+    services.picom.experimentalBackends = true;
+    services.picom.settings = {
+      shadow = true;
+      blur = { 
+        method = "dual_kawase";
+        size = 20;
+        deviation = 5.0;
+      };
+    };
+
+
+  home-manager.users.${username} = {
+    programs.rofi = {
+        enable = true;
+        terminal = "kitty";
+        theme = /etc/nixos/qtile/rofi.rasi;
+    };
+
+    services.dunst.enable = true;
   };
 }
