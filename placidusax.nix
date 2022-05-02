@@ -19,6 +19,7 @@ in
     services.xserver.windowManager.session = [{
       name = "placidusax";
       start = ''
+        chmod +x /etc/nixos/qtile/rofi-wifi-menu.sh &
         eww -c /etc/nixos/qtile/eww daemon &
         eww -c /etc/nixos/qtile/eww open bar &
         nitrogen --set-zoom-fill ${cfg.wallpaper} &
